@@ -1,0 +1,26 @@
+name = "LLMCheatsheets"
+uuid = "bfa53fcd-5caf-4eca-9d0c-bcc16d41cad3"
+authors = ["J S <49557684+svilupp@users.noreply.github.com> and contributors"]
+version = "1.0.0-DEV"
+
+[deps]
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+Mocking = "78c3b35d-d492-501b-9361-3d52fe80e533"
+PromptingTools = "670122d1-24a8-4d70-bfce-740807c42192"
+
+[compat]
+Aqua = "0.8"
+HTTP = "1.10"
+JSON3 = "1.14"
+Mocking = "0.8"
+PromptingTools = "0.50 - 0.56"
+Test = "1"
+julia = "1.10"
+
+[extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Aqua", "Test"]

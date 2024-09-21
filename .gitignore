@@ -1,0 +1,16 @@
+*.jl.*.cov
+*.jl.cov
+*.jl.mem
+/Manifest.toml
+/docs/Manifest.toml
+/docs/build/
+
+
+# MacOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# Scratch files
+_*.jl
