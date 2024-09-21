@@ -1,7 +1,7 @@
 name = "LLMCheatsheets"
 uuid = "bfa53fcd-5caf-4eca-9d0c-bcc16d41cad3"
 authors = ["J S <49557684+svilupp@users.noreply.github.com> and contributors"]
-version = "1.0.0-DEV"
+version = "0.1.0"
 
 [deps]
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
