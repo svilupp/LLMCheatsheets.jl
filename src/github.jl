@@ -90,7 +90,7 @@ function github_api(
         error("Failed to fetch data in $url: HTTP $(response.status)")
     end
 
-    return response, JSON3.read(response.body)
+    return response
 end
 
 """
@@ -118,7 +118,8 @@ function scan_github_path(repo::GitHubRepo, path::String; verbose = true,
         http_kwargs::NamedTuple = NamedTuple())
     ## Make API call
     url = "https://api.github.com/repos/$(repo.owner)/$(repo.name)/contents/$path"
-    resp, body = github_api(url; http_kwargs...)
+    resp = github_api(url; http_kwargs...)
+    body = JSON3.read(resp.body)
 
     ## Parse the response
     files = JSON3.Object[]

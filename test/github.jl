@@ -21,8 +21,9 @@ end
 
 @testset "github_api" begin
     # Test successful API call
-    response, body = github_api("https://api.github.com/repos/octocat/Hello-World/contents/README")
+    response = github_api("https://api.github.com/repos/octocat/Hello-World/contents/README")
     @test response.status == 200
+    body = JSON3.read(response.body)
     @test haskey(body, :name)
 
     # Test API call with invalid URL

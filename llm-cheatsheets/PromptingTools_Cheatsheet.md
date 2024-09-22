@@ -1,193 +1,195 @@
-# PromptingTools.jl Cheatsheet
+# Comprehensive Cheatsheet for Using PromptingTools.jl
 
-## 1. Name of the Package
-**PromptingTools.jl**
+## Overview
+PromptingTools.jl is a Julia package designed to simplify interactions with AI models by providing a variety of tools for generating, extracting, embedding, and classifying text. This cheatsheet covers everything from basic usage to advanced features such as RAG (Retrieve-Augmented Generation) tools and multi-turn conversations.
 
-## 2. URL
-[PromptingTools.jl on GitHub](https://github.com/svilupp/PromptingTools.jl)
+## Getting Started
 
-## 3. Purpose
-PromptingTools.jl aims to simplify interactions with large language models (LLMs) by providing various utilities for text generation, embedding, classification, extraction, and more. It allows users to efficiently handle APIs, build templates, and augment AI-generated responses with meaningful and structured prompts.
-
-## 4. List of Main Functions
-
-### Basic Functionality
-- `ai`
-- `@ai!_str`
-- `aigenerate`
-- `aiembed`
-- `aiclassify`
-- `aiextract`
-- `aiscan`
-- `aiimage`
-- `airetry!`
-- `aitemplates`
-
-### Advanced and Utility Functions
-- `load_templates!`
-- `aigenerate` (with templates)
-- `aitemplates` (searching templates)
-- `truncate_conversation`
-- `gamma_sample`
-- `replace_words`
-- `score_to_unit_scale`
-- `AsyncMap`
-- `build_index`
-- `retrieve`
-- `generate!`
-- `run_qa_evals`
-
-## 5. Detailed Examples for All Relevant Functionality with Comments
-
-### Basic Functionality
-
-#### `ai` - Generating a response
+### Installation
+To install PromptingTools.jl, use the Julia package manager:
 ```julia
-# Generate a response for a simple question
-ai"What is the capital of France?"
-# AIMessage("The capital of France is Paris.")
+using Pkg
+Pkg.add("PromptingTools")
 ```
 
-#### `@ai!_str` - Continuing a conversation
+### Setting Up API Keys
+**OpenAI API Key:**
+1. Sign up at [OpenAI](https://platform.openai.com/signup).
+2. Navigate to [API Key Page](https://platform.openai.com/account/api-keys).
+3. Set your API key in the environment:
+    ```julia
+    ENV["OPENAI_API_KEY"] = "your-api-key"
+    ```
+4. Optionally, for terminal:
+    ```bash
+    export OPENAI_API_KEY=<your-key>
+    ```
+
+## Basic Usage
+
+### Quick Start with `@ai_str`
+Generate responses quickly using the `@ai_str` string macro:
 ```julia
-# Continue the conversation based on the previous response
-ai!"And what is the population of it?"
-```
-
-#### `aigenerate` - Generating text responses
-```julia
-# Generate a textual response with a templated question
-msg = aigenerate("What is the capital of {{country}}?"; country="Spain")
-# AIMessage("The capital of Spain is Madrid.")
-
-# Using a Predefined Template
-msg = aigenerate(:JuliaExpertAsk; ask = "How do I add packages?")
-```
-
-#### `aiembed` - Extracting embeddings
-```julia
-# Extract embeddings for a piece of text
-embedding = aiembed("The concept of artificial intelligence.").content
-```
-
-#### `aiclassify` - Classifying input text
-```julia
-# Classify the given input into predefined categories
-result = aiclassify("Is two plus two four?")
-# Possible output: AIMessage("Yes, it is four.")
-```
-
-#### `aiextract` - Extracting structured data
-```julia
-struct CurrentWeather
-    location::String
-    unit::Union{Nothing,TemperatureUnits}
-end
-
-# Extract structured data about the current weather
-msg = aiextract("What's the weather in Salt Lake City in C?"; return_type=CurrentWeather)
-```
-
-#### `aiscan` - Interacting with images
-```julia
-# Analyze an image and provide a textual description
-msg = aiscan("Describe the image"; image_path="julia.png")
-```
-
-#### `aiimage` - Generating images using models like DALL-E
-```julia
-# Generate an image based on a textual prompt
-msg = aiimage("Generate an image of a sunset.")
-```
-
-#### `airetry!` - Retrying AI calls based on conditions
-```julia
-# Retry operation if an AI model fails to meet conditions
-airetry!(condition_function, aicall::AICall, feedback_function)
-```
-
-### Advanced and Utility Functions
-
-#### `load_templates!` - Loading templates
-```julia
-# Load templates from the templates directory
 using PromptingTools
+
+response = ai"What is the capital of France?"
+println(response.content) # "The capital of France is Paris."
+```
+
+### Multi-Turn Conversations with `@ai!_str`
+Keep context between queries:
+```julia
+response1 = ai"What is the weather today?"
+response2 = ai!"Do I need an umbrella?"
+```
+
+### String Interpolation
+Inject variables into your prompts:
+```julia
+country = "Spain"
+response = ai"What is the capital of \$country?"
+println(response.content) # "The capital of Spain is Madrid."
+```
+
+### Selecting Models
+Choose specific models using flags:
+```julia
+response = ai"What is the meaning of life?"gpt4
+```
+
+## Advanced Functions
+
+### `aigenerate` with Placeholders
+Use handlebars-style templating for complex queries:
+```julia
+msg = aigenerate("What is the capital of {{country}}? Is the population larger than {{population}}?", country="Spain", population="1M")
+println(msg.content)
+```
+
+**Asynchronous Version:**
+```julia
+response = aai"Say hi but slowly!"gpt4
+```
+
+### Creating Reusable Prompt Templates with `create_template`
+
+#### Example Template Creation
+Reusable templates streamline repeated tasks by defining a structure for prompts:
+```julia
+using PromptingTools
+
+template = create_template(
+    system = "You are a helpful assistant designed to answer programming questions.",
+    user = "I need help with {{input_question}}"
+)
+
+question1 = "How do I reverse a list in Python?"
+response1 = aigenerate(template; user_input=question1)
+println(response1.content)
+```
+
+### Tips for a Good Prompt
+1. **Clear Task Description:** Clearly define what the AI should do.
+2. **Guidelines/Instructions:** Provide detailed conditions or steps.
+3. **Desired Output Format:** Specify the expected format for the AI's response.
+4. **System Prompt:** Should include clear task description, guidelines, and desired output format.
+5. **User Prompt:** Should contain placeholders for inputs, like `{{input}}`.
+
+## Multi-Turn Conversations with `AIGenerate`
+
+### Using `AIGenerate` as a Functor
+You can use `AIGenerate` for effortless multi-turn conversations with the LLM by treating it as a function:
+```julia
+conversation = AIGenerate("What is 1+1?")
+response1 = conversation("Now multiply the result by 2.")
+response2 = conversation("Subtract 3 from the result.")
+println(response2)
+```
+
+
+## RAGTools Deep Dive
+
+RAGTools enriches LLM capabilities with external data. The core functions include `airag`, `retrieve`, and `generate!`.
+
+### `airag`
+Combines retrieval and generation for advanced tasks.
+```julia
+response = airag(query="Describe the climate policies of different countries.")
+```
+
+### `retrieve`
+Fetch relevant documents or data.
+```julia
+docs = retrieve("Explain neural networks in simple terms.")
+```
+
+### `generate!`
+Use retrieved data to generate contextually rich responses.
+```julia
+context = retrieve("Explain neural networks in simple terms.")
+response = generate!(context, "What are neural networks?")
+println(response)
+```
+
+### Example Workflow
+1. **Retrieve Data:**
+    ```julia
+    data = retrieve("Explain photosynthesis.")
+    ```
+
+2. **Generate Response:**
+    ```julia
+    response = generate!(data, "Using the following information, explain photosynthesis.")
+    println(response.content)
+    ```
+
+### Additional Features
+
+#### Asynchronous Execution
+For heavy models, avoid blocking the REPL:
+```julia
+response = aai"Provide a summary of this text."gpt4
+```
+
+#### Custom Model Aliases
+Define and use your own model aliases:
+```julia
 const PT = PromptingTools
-PT.load_templates!();
+PT.MODEL_ALIASES["gpt4t"] = "gpt-4-turbo"
+response = ai"Describe the impact of climate change."gpt4t
 ```
 
-#### `aitemplates` - Searching available templates
+#### Integration with Ollama Models
 ```julia
-# Search and display available templates matching "Julia"
-templates = aitemplates("Julia")
+schema = PT.OllamaSchema()
+msg = aigenerate(schema, "Say hi!"; model="openhermes2.5-mistral")
+println(msg.content) # "Hello! How can I assist you today?"
 ```
 
-#### `truncate_conversation` - Truncating conversations
+#### Custom API Schemas
+For custom API integrations:
 ```julia
-# Truncate a conversation to a specified maximum length
-conversation = [
-    PT.UserMessage("Hello"), 
-    PT.AIMessage("Hi there!"),
-    PT.UserMessage("Can you help me with something?"),
-    PT.AIMessage("Sure, what do you need?")
-]
-truncated_conv = truncate_conversation(conversation, max_conversation_length=50)
+PT.register_model!(name="custom-model", schema=PT.CustomOpenAISchema(), description="Custom API model.")
+msg = aigenerate(PT.CustomOpenAISchema(), "Ask me anything."; model="custom-model", api_key="your_api_key")
 ```
 
-#### `gamma_sample` - Sampling from the Gamma distribution
+## Best Practices and Cost Management
+
+### Tokens and Costs
+Monitor token usage and costs to manage expenses:
 ```julia
-# Sample a Gamma distribution with specific shape and scale
-sample = gamma_sample(2.0, 3.0)
-println("Gamma Sample: $sample")
+response = ai"How many tokens were used?"gpt4
+println("Tokens used: ", response.tokens)
+println("Cost: $", response.cost)
 ```
 
-#### `replace_words` - Masking sensitive words
+### Save and Load Templates
+Persist your templates for reuse:
 ```julia
-# Mask sensitive words in the text for privacy
-safe_text = replace_words("This is a secret message.", ["secret" => "[REDACTED]"])
+PT.save_template("templates/GreatingPirate.json", tpl; version="1.0")
+PT.load_templates!("templates")
 ```
 
-#### `score_to_unit_scale` - Normalizing scores
-```julia
-# Normalize a vector of scores to the unit scale [0, 1]
-x = [1.0, 2.0, 3.0, 4.0, 5.0]
-scaled_x = score_to_unit_scale(x)
-println(scaled_x)  # Output: Scaled values between 0 and 1
-```
+## Conclusion
 
-#### `AsyncMap` - Asynchronously processing multiple prompts
-```julia
-# Run multiple AI tasks concurrently using AsyncMap
-responses = asyncmap(aigenerate, ["Translate 'Hello' to Spanish", "Translate 'Hello' to French"])
-```
-
-#### `build_index` - Building index for RAG applications
-```julia
-# Build an index of document chunks for RAG applications
-files = [
-    joinpath("examples", "data", "database_style_joins.txt"),
-    joinpath("examples", "data", "what_is_dataframes.txt"),
-]
-index = build_index(files; extract_metadata = false)
-```
-
-#### `retrieve` - Retrieving relevant chunks
-```julia
-# Retrieve relevant chunks from the index for a given question
-result = retrieve(index, "What are the best practices for parallel computing in Julia?")
-```
-
-#### `generate!` - Generating answers based on retrieval
-```julia
-# Generate an answer based on the retrieved chunks
-result = generate!(index, retrieved_result)
-```
-
-#### `run_qa_evals` - Running QA evaluations
-```julia
-# Run quality evaluations on question-answer pairs
-results = run_qa_evals(evals[10], ctx; parameters_dict = Dict(:top_k => 3), verbose = true, model_judge = "gpt4t")
-```
-
-## Closing Note
-By understanding these functions, best practices, and potential caveats, junior developers can effectively utilize the PromptingTools.jl package to enhance their projects with AI capabilities. This cheatsheet should serve as a quick reference guide to get started with using and implementing the functionalities offered by the package.
+PromptingTools.jl provides a versatile platform for integrating advanced AI functionalities into your projects. From simple queries to sophisticated RAG workflows, it offers powerful tools for effective and efficient AI interactions. Follow best practices, leverage reusable templates, and utilize advanced features to harness the full potential of PromptingTools.jl.
