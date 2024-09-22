@@ -27,6 +27,12 @@ all_file_summaries = Dict{Symbol, AbstractString}[]
 special_instructions = """When relevant, add a lot of detail for `create_template` to show how easy it is to create re-usable prompt templates.
 Add some basic points on what a good prompt should have: Clear task description, guidelines/instructions, desired output format. 
 All that should be in the `system` prompt, the `user` prompt should have just the placeholders for the inputs in double curly braces, eg, `{{input}}`.
+
+Cool trick people don't know --> you can use `AIGenerate` for effortless multi-turn conversations with the LLM. Use it as a functor, ie, use it as a function.
+
+In addition, deep dive on all aspect of RAGTools - airag, retrieve, generate!, etc.
+
+All of the above should be in ADDITION to all the other cool features of PromptingTools.
 """ # Use to customize the output
 
 for path in repo.paths

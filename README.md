@@ -121,6 +121,10 @@ allowing you to access it later using its name.
 
 ## Frequently Asked Questions
 
+### I am getting rate-limited by LLM providers
+
+If you are getting rate-limited by LLM providers, you can decrease the number of concurrent summarization tasks in `create_cheatsheet` by setting a lower number like `ntasks=5` or `ntasks=2` (depends on your API tier).
+
 ### I am getting rate-limited by GitHub API
 
 Set up a personal access token and set it as `ENV["GITHUB_API_KEY"]`.
