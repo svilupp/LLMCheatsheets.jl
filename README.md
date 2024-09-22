@@ -6,9 +6,7 @@
 [![Coverage](https://codecov.io/gh/svilupp/LLMCheatsheets.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/svilupp/LLMCheatsheets.jl)
 [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
-## Overview
-
-LLMCheatsheets.jl makes it easy and instant to teach AI models about new packages and repositories by creating cheatsheets from GitHub repositories. This tool aims to bridge the gap between human-accessible documentation and AI-friendly knowledge representation.
+**LLMCheatsheets.jl** is a Julia package that makes it easy and instant to teach AI models about new packages and repositories by creating cheatsheets from GitHub repositories. This tool bridges the gap between human-readable documentation and AI-friendly knowledge representation, allowing for seamless integration with language models and AI assistants.
 
 By default, we take a subset of the folders and files in the provided repository and summarize them using an LLM into a single cheatsheet.
 
@@ -28,6 +26,9 @@ using Pkg
 Pkg.add(url = "https://github.com/svilupp/LLMCheatsheets.jl")
 ```
 
+> [!TIP]
+> If you encounter rate limits when accessing the GitHub API, you can set up a personal access token and set it as an environment variable `GITHUB_API_KEY` to increase your request limit to 5000 per hour.
+
 ## Quick Start
 
 Here's a basic example of how to use LLMCheatsheets.jl to create a cheatsheet for a GitHub repository.
@@ -41,11 +42,11 @@ create_cheatsheet(repo; save_path = true);
 
 With `save_path = true`, the cheatsheet will be saved to folder `llm-cheatsheets` in the current working directory.
 
-What happens behinds the scenes:
+**What happens behind the scenes:**
 
-1. The repository is scanned to find all the relevant files (that match `repo.paths` and `repo.file_types`).
-2. Each file is summarized using an LLM.
-3. The summaries are used to generate a cheatsheet.
+1. **Scanning the Repository:** The repository is scanned to find all relevant files that match `repo.paths` and `repo.file_types`.
+2. **Summarizing Files:** Each file is summarized using an LLM.
+3. **Generating Cheatsheet:** The summaries are combined to generate a comprehensive cheatsheet.
 
 For a low-level interface to generate the files individually and process them yourself, see `examples/create_for_promptingtools.jl`.
 
@@ -62,12 +63,30 @@ By default, the files scanned and downloaded are `repo.paths` and `repo.file_typ
 
 ## Advanced Usage
 
+### Customizing scanned paths and file types
+
+By default, `repo.paths` includes `["src", "docs/src", "README.md"]`, and `repo.file_types` includes `[".jl", ".md"]`. You can customize these when creating the `GitHubRepo` object:
+
+Eg, adding a folder `examples` and `.txt` files to customize what we will summarize:
+
+```julia
+repo = GitHubRepo("https://github.com/username/repository"; paths = ["examples", "README.md"], file_types = [".jl", ".md", ".txt"])
+```
+
 ### Using a different LLM
 
 You can use a different LLM by passing the `model` argument to the functions.
 
 ```julia
 create_cheatsheet(repo; save_path = true, model = "gpt4om")
+```
+
+### Adding Special Instructions
+
+You can provide special instructions to guide the AI in generating the cheatsheet:
+
+```julia
+create_cheatsheet(repo; special_instructions = "Focus on the data structures and their interactions.")
 ```
 
 ### Using PromptingTools.jl to Ask Questions
