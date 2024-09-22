@@ -2,14 +2,16 @@
 
 ## Overview
 
-LLMCheatsheets.jl is a Julia package designed to make it easy and instant to teach AI about new packages and repositories by creating instant cheatsheets from GitHub repositories. This tool aims to bridge the gap between human-readable documentation and AI-friendly knowledge representation.
+LLMCheatsheets.jl makes it easy and instant to teach AI models about new packages and repositories by creating cheatsheets from GitHub repositories. This tool aims to bridge the gap between human-accessible documentation and AI-friendly knowledge representation.
+
+By default, we take a subset of the folders and files in the provided repository and summarize them using an LLM into a single cheatsheet.
 
 ## Features
 
-- Instant cheatsheet generation from GitHub repositories
-- AI-friendly knowledge representation
-- Easy integration with language models and AI assistants
-- Support for various Julia packages and repositories
+- **Instant cheatsheet generation** from GitHub repositories.
+- **AI-friendly knowledge representation** by summarizing code and documentation (or just collate all the raw files into a single string).
+- **Easy integration** with language models and AI assistants (just copy the cheatsheet into your prompt).
+- **Support for any package** and easier to start than Retrieval Augmented Generation (RAG).
 
 ## Installation
 
@@ -47,7 +49,8 @@ Sometimes you might want to just download the files without summarizing them. Yo
 files_str = collect(repo)
 ```
 
-`files_str` will be a string with all scanned files concatenated together, eg, to use in ChatGPT or `claude.ai`.
+`files_str` will be a string with all scanned files concatenated together. 
+To use it in ChatGPT or Claude.ai, use `clipboard` functionality to copy it to clipboard - `files_str|>clipboard`.
 
 By default, the files scanned and downloaded are `repo.paths` and `repo.file_types`, respectively.
 
@@ -78,6 +81,23 @@ files_str = collect(repo)
 msg = aigenerate("What is the function for create prompts?\n Check these files:\n$files_str")
 pprint(msg)
 ```
+
+## Frequently Asked Questions
+
+### I am getting rate-limited by GitHub API
+
+Set up a personal access token and set it as `ENV["GITHUB_API_KEY"]`.
+It will be automatically loaded into a variable `LLMCheatsheets.GITHUB_API_KEY`.
+
+### How do I set up a personal access token for GitHub API?
+
+You can set up a personal access token for GitHub API by following these steps:
+
+1. Go to your [GitHub settings](https://github.com/settings/tokens).
+2. Click on "Personal access tokens".
+3. Click on "Generate new token".
+
+Then you can set it as `ENV["GITHUB_API_KEY"]` or `LLMCheatsheets.GITHUB_API_KEY`.
 
 ## Documentation
 
